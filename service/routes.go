@@ -1,8 +1,12 @@
 package service
 
-import "net/http"
+import (
+	"net/http"
 
-func AddRoutes(mux *http.ServeMux) {
-	mux.Handle("GET /login", handleLogin())
-	mux.Handle("POST /register", handleRegister())
+	"github.com/flrn000/pc-partpicker/data"
+)
+
+func AddRoutes(mux *http.ServeMux, userStore *data.UserStore) {
+	mux.Handle("GET /login", handleLogin(userStore))
+	mux.Handle("POST /api/v1/register", handleRegister(userStore))
 }

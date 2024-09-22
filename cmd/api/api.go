@@ -5,19 +5,19 @@ import (
 	"net/http"
 	"time"
 
+	"github.com/flrn000/pc-partpicker/data"
 	"github.com/flrn000/pc-partpicker/service"
-	"github.com/jackc/pgx/v5/pgxpool"
 )
 
 type APIServer struct {
-	address string
-	db      *pgxpool.Pool
+	address   string
+	userStore *data.UserStore
 }
 
-func NewAPIServer(addr string, db *pgxpool.Pool) *APIServer {
+func NewAPIServer(addr string, userStore *data.UserStore) *APIServer {
 	return &APIServer{
-		address: addr,
-		db:      db,
+		address:   addr,
+		userStore: userStore,
 	}
 }
 
@@ -30,7 +30,7 @@ func (s *APIServer) Start() error {
 		WriteTimeout: 3 * time.Second,
 	}
 
-	service.AddRoutes(mux)
+	service.AddRoutes(mux, s.userStore)
 
 	log.Println("Listening on", s.address)
 

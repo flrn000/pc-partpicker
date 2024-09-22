@@ -7,6 +7,7 @@ import (
 	"os"
 
 	"github.com/flrn000/pc-partpicker/cmd/api"
+	"github.com/flrn000/pc-partpicker/data"
 	"github.com/flrn000/pc-partpicker/db"
 	"github.com/joho/godotenv"
 )
@@ -32,7 +33,9 @@ func main() {
 
 	fmt.Println("Connected to the database successfully!")
 
-	server := api.NewAPIServer(":8080", dbpool)
+	userStore := data.NewUserStore(dbpool)
+
+	server := api.NewAPIServer(":8080", userStore)
 	if err := server.Start(); err != nil {
 		log.Fatalf("starting server: %v", err)
 	}
