@@ -1,20 +1,20 @@
 package api
 
 import (
-	"database/sql"
 	"log"
 	"net/http"
 	"time"
 
 	"github.com/flrn000/pc-partpicker/service"
+	"github.com/jackc/pgx/v5/pgxpool"
 )
 
 type APIServer struct {
 	address string
-	db      *sql.DB
+	db      *pgxpool.Pool
 }
 
-func NewAPIServer(addr string, db *sql.DB) *APIServer {
+func NewAPIServer(addr string, db *pgxpool.Pool) *APIServer {
 	return &APIServer{
 		address: addr,
 		db:      db,
