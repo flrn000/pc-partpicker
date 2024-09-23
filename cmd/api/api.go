@@ -7,6 +7,7 @@ import (
 	"time"
 
 	"github.com/flrn000/pc-partpicker/data"
+	"github.com/flrn000/pc-partpicker/middleware"
 	"github.com/flrn000/pc-partpicker/service"
 )
 
@@ -26,8 +27,12 @@ func NewAPIServer(addr string, logger *slog.Logger, userStore *data.UserStore) *
 
 func (s *APIServer) Start() error {
 	mux := http.NewServeMux()
+	var handler http.Handler = mux
+	addLogging := middleware.NewLogging(s.logger)
+	handler = middleware.AddSecureHeaders(addLogging(handler))
+
 	srv := &http.Server{
-		Handler:      mux,
+		Handler:      handler,
 		Addr:         s.address,
 		ReadTimeout:  3 * time.Second,
 		WriteTimeout: 3 * time.Second,
