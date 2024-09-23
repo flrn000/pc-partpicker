@@ -18,9 +18,15 @@ func NewUserStore(dbPool *pgxpool.Pool) *UserStore {
 }
 
 func (us *UserStore) GetByEmail(email string) (*types.User, error) {
-	var result types.User
+	result := &types.User{}
 
-	err := us.dbPool.QueryRow(context.Background(), "SELECT * FROM users WHERE email=$1", email).Scan(&result)
+	err := us.dbPool.QueryRow(context.Background(), "SELECT * FROM users WHERE email=$1", email).Scan(
+		&result.ID,
+		&result.CreatedAt,
+		&result.UserName,
+		&result.Email,
+		&result.Password,
+	)
 	if err != nil {
 		return nil, fmt.Errorf("QueryRow failed: %v", err)
 	}
@@ -29,7 +35,7 @@ func (us *UserStore) GetByEmail(email string) (*types.User, error) {
 		return nil, errors.New("user not found")
 	}
 
-	return &result, nil
+	return result, nil
 }
 
 func (us *UserStore) Create(user *types.User) error {
@@ -47,9 +53,15 @@ func (us *UserStore) Create(user *types.User) error {
 }
 
 func (us *UserStore) Get(id int) (*types.User, error) {
-	var result types.User
+	result := &types.User{}
 
-	err := us.dbPool.QueryRow(context.Background(), "SELECT * FROM users WHERE id=$1", id).Scan(&result)
+	err := us.dbPool.QueryRow(context.Background(), "SELECT * FROM users WHERE id=$1", id).Scan(
+		&result.ID,
+		&result.CreatedAt,
+		&result.UserName,
+		&result.Email,
+		&result.Password,
+	)
 	if err != nil {
 		return nil, fmt.Errorf("QueryRow failed: %v", err)
 	}
@@ -58,5 +70,5 @@ func (us *UserStore) Get(id int) (*types.User, error) {
 		return nil, errors.New("user not found")
 	}
 
-	return &result, nil
+	return result, nil
 }
