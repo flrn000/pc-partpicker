@@ -20,7 +20,8 @@ func main() {
 
 	err := godotenv.Load()
 	if err != nil {
-		log.Fatal("Error loading .env file")
+		logger.Error("Error loading .env file")
+		os.Exit(1)
 	}
 
 	dbpool, err := db.NewPSQLStorage(os.Getenv("DATABASE_URL"))
@@ -46,6 +47,7 @@ func main() {
 
 	server := api.NewAPIServer(*addr, logger, userStore)
 	if err := server.Start(); err != nil {
-		log.Fatalf("starting server: %v", err)
+		logger.Error(fmt.Sprintf("starting server: %v", err))
+		os.Exit(1)
 	}
 }

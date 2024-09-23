@@ -7,6 +7,9 @@ import (
 )
 
 func AddRoutes(mux *http.ServeMux, userStore *data.UserStore) {
-	mux.Handle("GET /login", handleLogin(userStore))
+	mux.Handle("GET /{$}", handleIndex())
+	mux.Handle("GET /static/", http.StripPrefix("/static/", http.FileServer(http.Dir("./client/static"))))
+
+	mux.Handle("POST /api/v1/login", handleLogin(userStore))
 	mux.Handle("POST /api/v1/register", handleRegister(userStore))
 }

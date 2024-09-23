@@ -2,6 +2,7 @@ package service
 
 import (
 	"fmt"
+	"html/template"
 	"net/http"
 
 	"github.com/flrn000/pc-partpicker/data"
@@ -10,7 +11,34 @@ import (
 	"golang.org/x/crypto/bcrypt"
 )
 
+func handleIndex() http.Handler {
+	return http.HandlerFunc(
+		func(w http.ResponseWriter, r *http.Request) {
+			files := []string{
+				"./client/html/base.tmpl",
+				"./client/html/partials/nav.tmpl",
+				"./client/html/pages/home.tmpl",
+			}
+			ts, err := template.ParseFiles(files...)
+			if err != nil {
+				utils.WriteError(w, r, http.StatusInternalServerError, err)
+				return
+			}
+
+			err = ts.ExecuteTemplate(w, "base", nil)
+			if err != nil {
+				utils.WriteError(w, r, http.StatusInternalServerError, err)
+				return
+			}
+		},
+	)
+}
+
 func handleLogin(userStore *data.UserStore) http.Handler {
+	type LoginUserPayload struct {
+		Email    string `json:"email"`
+		Password string `json:"password"`
+	}
 	return http.HandlerFunc(
 		func(w http.ResponseWriter, r *http.Request) {
 
@@ -20,7 +48,7 @@ func handleLogin(userStore *data.UserStore) http.Handler {
 
 func handleRegister(userStore *data.UserStore) http.Handler {
 	type RegisterUserPayload struct {
-		UserName string `json:"user_name"`
+		UserName string `json:"username"`
 		Email    string `json:"email"`
 		Password string `json:"password"`
 	}
