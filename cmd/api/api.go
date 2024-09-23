@@ -2,6 +2,7 @@ package api
 
 import (
 	"log"
+	"log/slog"
 	"net/http"
 	"time"
 
@@ -11,12 +12,14 @@ import (
 
 type APIServer struct {
 	address   string
+	logger    *slog.Logger
 	userStore *data.UserStore
 }
 
-func NewAPIServer(addr string, userStore *data.UserStore) *APIServer {
+func NewAPIServer(addr string, logger *slog.Logger, userStore *data.UserStore) *APIServer {
 	return &APIServer{
 		address:   addr,
+		logger:    logger,
 		userStore: userStore,
 	}
 }
