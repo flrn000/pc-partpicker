@@ -41,7 +41,22 @@ func handleLogin(userStore *data.UserStore) http.Handler {
 	}
 	return http.HandlerFunc(
 		func(w http.ResponseWriter, r *http.Request) {
+			payload, err := utils.Decode[LoginUserPayload](r)
+			if err != nil {
+				utils.WriteError(w, r, http.StatusInternalServerError, err)
+				return
+			}
+			u, err := userStore.GetByEmail(payload.Email)
+			if err != nil {
+				utils.WriteError(w, r, http.StatusBadRequest, fmt.Errorf("user with email %s doesn't exist", payload.Email))
+				return
+			}
 
+			err = bcrypt.CompareHashAndPassword([]byte(u.Password), []byte(payload.Password))
+			if err != nil {
+				utils.WriteError(w, r, http.StatusUnauthorized, err)
+				return
+			}
 		},
 	)
 }
@@ -93,4 +108,38 @@ func handleRegister(userStore *data.UserStore) http.Handler {
 			}
 		},
 	)
+}
+
+func handleCreateProducts(componentStore *data.ComponentStore) http.Handler {
+	return http.HandlerFunc(
+		func(w http.ResponseWriter, r *http.Request) {
+			payload, err := utils.Decode[types.CreateProductPayload](r)
+			if err != nil {
+				utils.WriteError(w, r, http.StatusBadRequest, err)
+				return
+			}
+
+			component := &types.Component{
+				Name:         payload.Name,
+				Type:         payload.Type,
+				Manufacturer: payload.Manufacturer,
+				Model:        payload.Model,
+				Price:        payload.Price,
+				Rating:       payload.Rating,
+				ImageURL:     payload.ImageURL,
+			}
+
+			err = componentStore.Create(component)
+			if err != nil {
+				utils.WriteError(w, r, http.StatusInternalServerError, err)
+			}
+
+			w.Header().Set("Location", fmt.Sprintf("api/v1/products/%d", component.ID))
+
+			err = utils.Encode(w, r, http.StatusCreated, component)
+			if err != nil {
+				utils.WriteError(w, r, http.StatusInternalServerError, err)
+				return
+			}
+		})
 }
