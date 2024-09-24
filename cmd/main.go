@@ -44,8 +44,9 @@ func main() {
 	logger.Info("Connected to the database successfully!")
 
 	userStore := data.NewUserStore(dbpool)
+	componentStore := data.NewComponentStore(dbpool)
 
-	server := api.NewAPIServer(*addr, logger, userStore)
+	server := api.NewAPIServer(*addr, logger, userStore, componentStore)
 	if err := server.Start(); err != nil {
 		logger.Error(fmt.Sprintf("starting server: %v", err))
 		os.Exit(1)

@@ -12,16 +12,23 @@ import (
 )
 
 type APIServer struct {
-	address   string
-	logger    *slog.Logger
-	userStore *data.UserStore
+	address        string
+	logger         *slog.Logger
+	userStore      *data.UserStore
+	componentStore *data.ComponentStore
 }
 
-func NewAPIServer(addr string, logger *slog.Logger, userStore *data.UserStore) *APIServer {
+func NewAPIServer(
+	addr string,
+	logger *slog.Logger,
+	userStore *data.UserStore,
+	componentStore *data.ComponentStore,
+) *APIServer {
 	return &APIServer{
-		address:   addr,
-		logger:    logger,
-		userStore: userStore,
+		address:        addr,
+		logger:         logger,
+		userStore:      userStore,
+		componentStore: componentStore,
 	}
 }
 
@@ -38,7 +45,7 @@ func (s *APIServer) Start() error {
 		WriteTimeout: 3 * time.Second,
 	}
 
-	service.AddRoutes(mux, s.userStore)
+	service.AddRoutes(mux, s.userStore, s.componentStore)
 
 	log.Println("Listening on", s.address)
 
