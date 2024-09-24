@@ -1,8 +1,25 @@
 package types
 
 import (
+	"errors"
 	"time"
 )
+
+type ComponentType string
+
+const (
+	TypeCPU         ComponentType = "procesor"
+	TypeGPU         ComponentType = "placa video"
+	TypeMotherboard ComponentType = "placa de baza"
+	TypeMemory      ComponentType = "memorie"
+	TypeSSD         ComponentType = "ssd"
+	TypeHDD         ComponentType = "hdd"
+	TypeCPUCooler   ComponentType = "cooler"
+	TypePSU         ComponentType = "sursa"
+	TypeCase        ComponentType = "carcasa"
+)
+
+var ErrNoRecord error = errors.New("no matching record found")
 
 type User struct {
 	ID        int       `json:"id"`
@@ -21,7 +38,7 @@ type Component struct {
 	Manufacturer string    `json:"manufacturer"`
 	Model        string    `json:"model"`
 	Price        string    `json:"price"`
-	Rating       uint8     `json:"rating"`
+	Rating       int16     `json:"rating"`
 	ImageURL     string    `json:"image_url"`
 }
 
@@ -31,6 +48,6 @@ type CreateProductPayload struct {
 	Manufacturer string `json:"manufacturer"`
 	Model        string `json:"model"`
 	Price        string `json:"price"`
-	Rating       uint8  `json:"rating"`
+	Rating       int16  `json:"rating"`
 	ImageURL     string `json:"image_url"`
 }

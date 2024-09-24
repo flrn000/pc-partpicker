@@ -1,0 +1,42 @@
+{{define "title"}}Produse tip {{.ComponentType}}{{end}}
+
+{{define "main"}}
+    <div class="productList__wrapper">
+        {{if .Components}}
+        <table class="productList--detailed">
+            <thead>
+                <tr>
+                    <th>Nume</th>
+                    <th>Producator</th>
+                    <th>Model</th>
+                    <th>Rating</th>
+                    <th>Pret</th>
+                </tr>
+            </thead>
+            <tbody>
+                {{range .Components}}
+                <tr class="tr__product">
+                    <td class="td__spec td__spec--1">
+                        <a href="/product/{{.ID}}/{{.Name}}">
+                            <div class="td__imageWrapper">
+                                <div class="td__image">
+                                    <img src="{{.ImageURL}}" alt="{{.Model}}">
+                                </div>
+                            </div>
+
+                            <div class="td__nameWrapper">
+                                <p>{{.Name}}</p>
+                            </div>
+                        </a>
+                    </td>
+                    <td class="td__spec td__spec--2">{{.Manufacturer}}</td>
+                    <td class="td__spec td__spec--3">{{.Model}}</td>
+                    <td class="td__spec td__spec--4">{{.Rating}}</td>
+                    <td class="td__spec td__spec--5">{{.Price}}</td>
+                </tr>
+                {{end}}
+            </tbody>
+        </table>
+        {{end}}
+    </div>
+{{end}}
