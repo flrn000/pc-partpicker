@@ -23,5 +23,7 @@
     --nav-separator-color: goldenrod;
     --nav-background-color: hsl(50, 50%, 95%);
 
+    --nav-item-background-active: rgb(24 24 39);
+
     --border-color: black;
 }
