@@ -1,0 +1,27 @@
+:root {
+    /* https://modernfontstacks.com/
+       geometric humanist font */
+    --font-system: Avenir, Montserrat, Corbel, source-sans-pro, sans-serif;
+
+    --background-primary-color: rgb(40, 40, 56);
+    --background-secondary-color: rgb(70, 70, 91);
+    --background-tertiary-color: rgb(9, 9, 15);
+
+    --text-color: #FFFFFF;
+    --text-color-mute: hsl(0, 0%, 60%);
+
+    --compatibility-valid: #00b16a;
+
+    --highlight-color: rgb(239, 158, 32);
+
+    --link-color: rgb(116 186 255);
+    --link-active-color: rgb(218, 237, 255);
+    
+    --button-primary-color: rgb(43 134 222);
+    --button-active-color: rgb(25 95 163);
+
+    --nav-separator-color: goldenrod;
+    --nav-background-color: hsl(50, 50%, 95%);
+
+    --border-color: black;
+}
