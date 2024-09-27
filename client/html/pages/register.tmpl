@@ -1,33 +1,51 @@
 {{define "title"}}Registration{{end}}
 
 {{define "main"}}
-<form class="register-wrapper" action="/api/v1/register" method="POST" novalidate>
-    <div class="field-wrapper">
-        <label for="name">Username:</label>
-        {{with .Form.FieldErrors.username}}
-        <label class="error">{{.}}</label>
-        {{end}}
-        <input type="text" placeholder="Username" name="userName" id="userName" value="{{.Form.Username}}">
+<div class="wrapper page-wrapper page-register">
+    <div class="title-wrapper">
+        <h1>Registration</h1>
     </div>
 
-    <div class="field-wrapper">
-        <label for="email">Email:</label>
-        {{with .Form.FieldErrors.email}}
-        <label class="error">{{.}}</label>
-        {{end}}
-        <input type="email" placeholder="Email" name="email" id="email" value="{{.Form.Email}}">
-    </div>
+    <div class="registration-wrapper">
+        <div class="card">
+            <form action="/api/v1/register" method="POST" novalidate>
+                <div class="field-wrapper">
+                    <label for="username">Username:</label>
+                    {{with .Form.FieldErrors.username}}
+                    <label class="error">{{.}}</label>
+                    {{end}}
+                    <input type="text" placeholder="Username" name="username" id="username" value="{{.Form.Username}}">
+                </div>
 
-    <div class="field-wrapper">
-        <label for="password">Password:</label>
-        {{with .Form.FieldErrors.password}}
-        <label class="error">{{.}}</label>
-        {{end}}
-        <input type="password" placeholder="Password" name="password" id="password">
-    </div>
+                <div class="field-wrapper">
+                    <label for="email">Email:</label>
+                    {{with .Form.FieldErrors.email}}
+                    <label class="error">{{.}}</label>
+                    {{end}}
+                    <input type="email" placeholder="Email" name="email" id="email" value="{{.Form.Email}}">
+                </div>
 
-    <div class="field-wrapper">
-        <input type="submit" class="button" value="Register">
+                <div class="field-wrapper">
+                    <label for="password">Password:</label>
+                    {{with .Form.FieldErrors.password}}
+                    <label class="error">{{.}}</label>
+                    {{end}}
+                    <input type="password" placeholder="Password" name="password" id="password">
+                </div>
+
+                <div class="field-wrapper">
+                    <p class="note">By registering you consent to allow PCPartPicker to retain personal information
+                        consisting of your email address and IP addresses used to access the site. PCPartPicker does not
+                        sell your personal information. Details on what data we retain and how we use it can be found in
+                        our <a href="/privacy/">privacy policy</a>.
+                    </p>
+                </div>
+
+                <div class="field-wrapper">
+                    <input type="submit" class="button" value="Register">
+                </div>
+            </form>
+        </div>
     </div>
-</form>
+</div>
 {{end}}

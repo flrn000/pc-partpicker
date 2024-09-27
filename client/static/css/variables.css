@@ -23,9 +23,12 @@
     --nav-separator-color: goldenrod;
     --nav-background-color: hsl(50, 50%, 95%);
 
+    --input-background-color: rgb(17, 17, 28);
+    --input-active-color: rgb(44 133 197);
+
     --nav-item-background-active: rgb(24 24 39);
 
     --card-background-color: rgb(61, 61, 83);
 
-    --border-color: black;
+    --error-color: rgb(229 44 52);
 }

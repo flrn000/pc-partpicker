@@ -1,0 +1,26 @@
+.page-register {
+    &.page-wrapper {
+        background-color: var(--background-primary-color);
+    }
+
+    .title-wrapper {
+        text-align: center;
+        padding: 2rem 0;
+
+        h1 {
+            font-size: 2rem;
+        }
+    }
+
+    .registration-wrapper {
+        max-width: 35%;
+        margin: 0 auto;
+        padding-bottom: 2rem;
+    }
+
+    .field-wrapper {
+        &:not(:first-of-type) {
+            margin-top: 2rem;
+        }
+    }
+}

@@ -93,7 +93,7 @@ func handleRegister(userStore *data.UserStore, validator *utils.Validator) http.
 					},
 				}
 
-				utils.RenderTemplate(w, r, http.StatusBadRequest, "register.tmpl", data)
+				utils.RenderTemplate(w, r, http.StatusUnprocessableEntity, "register.tmpl", data)
 
 				return
 			}
