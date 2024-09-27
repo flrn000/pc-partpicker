@@ -1,8 +1,10 @@
 package utils
 
 import (
+	"bytes"
 	"encoding/json"
 	"fmt"
+	"html/template"
 	"log/slog"
 	"net/http"
 	"strings"
@@ -70,4 +72,35 @@ func Decode[T any](r *http.Request) (T, error) {
 func WriteError(w http.ResponseWriter, r *http.Request, status int, err error) {
 	slog.Error(err.Error())
 	Encode(w, r, status, map[string]string{"error": err.Error()})
+}
+
+func RenderTemplate(
+	w http.ResponseWriter,
+	r *http.Request,
+	status int,
+	page string,
+	data any) {
+	files := []string{
+		"./client/html/base.tmpl",
+		"./client/html/partials/nav.tmpl",
+		fmt.Sprintf("./client/html/pages/%s", page),
+	}
+
+	ts, err := template.ParseFiles(files...)
+	if err != nil {
+		WriteError(w, r, http.StatusInternalServerError, err)
+		return
+	}
+
+	buf := new(bytes.Buffer)
+
+	err = ts.ExecuteTemplate(buf, "base", data)
+	if err != nil {
+		WriteError(w, r, http.StatusInternalServerError, err)
+		return
+	}
+
+	w.WriteHeader(status)
+
+	buf.WriteTo(w)
 }

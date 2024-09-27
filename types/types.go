@@ -19,7 +19,10 @@ const (
 	TypeCase        ComponentType = "carcasa"
 )
 
-var ErrNoRecord error = errors.New("no matching record found")
+var (
+	ErrNoRecord           = errors.New("no matching record found")
+	ErrInvalidCredentials = errors.New("invalid credentials")
+)
 
 type User struct {
 	ID        int       `json:"id"`

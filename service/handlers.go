@@ -11,25 +11,25 @@ import (
 	"golang.org/x/crypto/bcrypt"
 )
 
+type templateData struct {
+	User       *types.User
+	Component  *types.Component
+	Components []*types.Component
+	Form       any
+}
+
 func handleIndex() http.Handler {
 	return http.HandlerFunc(
 		func(w http.ResponseWriter, r *http.Request) {
-			files := []string{
-				"./client/html/base.tmpl",
-				"./client/html/partials/nav.tmpl",
-				"./client/html/pages/home.tmpl",
-			}
-			ts, err := template.ParseFiles(files...)
-			if err != nil {
-				utils.WriteError(w, r, http.StatusInternalServerError, err)
-				return
-			}
+			utils.RenderTemplate(w, r, http.StatusOK, "home.tmpl", nil)
+		},
+	)
+}
 
-			err = ts.ExecuteTemplate(w, "base", nil)
-			if err != nil {
-				utils.WriteError(w, r, http.StatusInternalServerError, err)
-				return
-			}
+func handleRegisterPage() http.Handler {
+	return http.HandlerFunc(
+		func(w http.ResponseWriter, r *http.Request) {
+			utils.RenderTemplate(w, r, http.StatusOK, "register.tmpl", nil)
 		},
 	)
 }
@@ -61,35 +61,57 @@ func handleLogin(userStore *data.UserStore) http.Handler {
 	)
 }
 
-func handleRegister(userStore *data.UserStore) http.Handler {
-	type RegisterUserPayload struct {
-		UserName string `json:"username"`
-		Email    string `json:"email"`
-		Password string `json:"password"`
+func handleRegister(userStore *data.UserStore, validator *utils.Validator) http.Handler {
+	type registerForm struct {
+		Username    string
+		Email       string
+		FieldErrors map[string]string
 	}
 
 	return http.HandlerFunc(
 		func(w http.ResponseWriter, r *http.Request) {
-			val, err := utils.Decode[RegisterUserPayload](r)
+			err := r.ParseForm()
 			if err != nil {
-				utils.WriteError(w, r, http.StatusInternalServerError, err)
+				utils.WriteError(w, r, http.StatusBadRequest, err)
 				return
 			}
 
-			if _, err := userStore.GetByEmail(val.Email); err == nil {
-				utils.WriteError(w, r, http.StatusBadRequest, fmt.Errorf("user with email %s already exists", val.Email))
+			username := r.PostForm.Get("username")
+			email := r.PostForm.Get("email")
+			password := r.PostForm.Get("password")
+
+			validator.CheckField(utils.IsNotBlank(username), "username", "The username cannot be blank")
+			validator.CheckField(utils.IsNotBlank(email), "email", "The email cannot be blank")
+			validator.CheckField(utils.IsNotBlank(password), "password", "The password cannot be blank")
+
+			if !validator.IsValid() {
+				data := templateData{
+					Form: registerForm{
+						Username:    username,
+						Email:       email,
+						FieldErrors: validator.FieldErrors,
+					},
+				}
+
+				utils.RenderTemplate(w, r, http.StatusBadRequest, "register.tmpl", data)
+
 				return
 			}
 
-			hashedPassword, err := bcrypt.GenerateFromPassword([]byte(val.Password), bcrypt.DefaultCost)
+			if _, err := userStore.GetByEmail(email); err == nil {
+				utils.WriteError(w, r, http.StatusBadRequest, fmt.Errorf("user with email %s already exists", email))
+				return
+			}
+
+			hashedPassword, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
 			if err != nil {
 				utils.WriteError(w, r, http.StatusInternalServerError, err)
 				return
 			}
 
 			user := &types.User{
-				UserName: val.UserName,
-				Email:    val.Email,
+				UserName: username,
+				Email:    email,
 				Password: string(hashedPassword),
 			}
 

@@ -16,7 +16,7 @@
 
     --link-color: rgb(116 186 255);
     --link-active-color: rgb(218, 237, 255);
-    
+
     --button-primary-color: rgb(43 134 222);
     --button-active-color: rgb(25 95 163);
 
@@ -24,6 +24,8 @@
     --nav-background-color: hsl(50, 50%, 95%);
 
     --nav-item-background-active: rgb(24 24 39);
+
+    --card-background-color: rgb(61, 61, 83);
 
     --border-color: black;
 }
