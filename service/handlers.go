@@ -2,7 +2,6 @@ package service
 
 import (
 	"fmt"
-	"html/template"
 	"net/http"
 
 	"github.com/flrn000/pc-partpicker/data"
@@ -12,10 +11,11 @@ import (
 )
 
 type templateData struct {
-	User       *types.User
-	Component  *types.Component
-	Components []*types.Component
-	Form       any
+	User          *types.User
+	Component     *types.Component
+	ComponentType string
+	Components    []*types.Component
+	Form          any
 }
 
 func handleIndex() http.Handler {
@@ -171,36 +171,18 @@ func handleViewProducts(componentStore *data.ComponentStore) http.Handler {
 		func(w http.ResponseWriter, r *http.Request) {
 			componentType := r.PathValue("componentType")
 
-			components, err := componentStore.GetMany(10, types.ComponentType(componentType))
+			components, err := componentStore.GetMany(60, types.ComponentType(componentType))
 			if err != nil {
 				utils.WriteError(w, r, http.StatusBadRequest, err)
 				return
 			}
 
-			templateData := struct {
-				ComponentType string
-				Components    []*types.Component
-			}{
-				componentType,
-				components,
+			data := templateData{
+				ComponentType: componentType,
+				Components:    components,
 			}
 
-			files := []string{
-				"./client/html/base.tmpl",
-				"./client/html/partials/nav.tmpl",
-				"./client/html/pages/products.tmpl",
-			}
-			ts, err := template.ParseFiles(files...)
-			if err != nil {
-				utils.WriteError(w, r, http.StatusInternalServerError, err)
-				return
-			}
-
-			err = ts.ExecuteTemplate(w, "base", templateData)
-			if err != nil {
-				utils.WriteError(w, r, http.StatusInternalServerError, err)
-				return
-			}
+			utils.RenderTemplate(w, r, http.StatusOK, "products.tmpl", data)
 		},
 	)
 }

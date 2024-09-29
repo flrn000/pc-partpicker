@@ -1,0 +1,31 @@
+.page-products {
+    .product-list-wrapper {
+        padding: 3rem 0;
+    }
+
+    .productList--detailed {
+        border-collapse: collapse;
+    }
+
+    .tr__product {
+        .td__spec {
+            vertical-align: middle;
+            padding: 0;
+
+            &.td__spec--1 {
+                a {
+                    display: flex;
+                    align-items: center;
+
+                    .td__imageWrapper {
+                        flex: 0 0 4rem;
+                    }
+
+                    .td__nameWrapper {
+                        margin-left: 1rem;
+                    }
+                }
+            }
+        }
+    }
+}

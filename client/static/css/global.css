@@ -53,6 +53,27 @@ svg {
     }
 }
 
+table {
+    border-collapse: collapse;
+    border-spacing: 0;
+
+    tr {
+        border-color: var(--row-background-color);
+        border-top-style: solid;
+        border-top-width: 1px;
+
+        &:first-of-type {
+            border-top: none;
+        }
+    }
+}
+
+footer {
+    background-color: var(--background-tertiary-color);
+    text-align: center;
+    padding: 2rem 0;
+}
+
 .card {
     padding: 3rem;
     border-radius: 0.5rem;
@@ -166,8 +187,16 @@ svg {
     }
 }
 
-footer {
-    background-color: var(--background-tertiary-color);
+.page-wrapper {
+    background-color: var(--background-primary-color);
+}
+
+.title-wrapper {
     text-align: center;
     padding: 2rem 0;
+    background-color: var(--background-secondary-color);
+
+    h1 {
+        font-size: 2rem;
+    }
 }

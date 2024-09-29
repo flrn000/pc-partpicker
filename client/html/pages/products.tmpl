@@ -1,9 +1,13 @@
 {{define "title"}}Produse tip {{.ComponentType}}{{end}}
 
 {{define "main"}}
-    <div class="productList__wrapper">
+<div class="wrapper page-wrapper page-products">
+    <div class="title-wrapper">
+        <h1>Alege {{.ComponentType}}</h1>
+    </div>
+    <div class="product-list-wrapper">
         {{if .Components}}
-        <table class="productList--detailed">
+        <table id="productsList" class="productList--detailed">
             <thead>
                 <tr>
                     <th>Nume</th>
@@ -39,4 +43,5 @@
         </table>
         {{end}}
     </div>
+</div>
 {{end}}

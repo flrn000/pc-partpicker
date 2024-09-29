@@ -3,7 +3,7 @@ const productsPage = () => {
     const productsListTable = document.querySelector("#productsList")
     if (productsListTable) {
         dataTable = new simpleDatatables.DataTable(productsListTable, {
-            fixedHeight: true,
+            fixedHeight: false,
         })
     }
 }

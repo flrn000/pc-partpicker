@@ -1,15 +1,6 @@
 .page-register {
-    &.page-wrapper {
-        background-color: var(--background-primary-color);
-    }
-
     .title-wrapper {
-        text-align: center;
-        padding: 2rem 0;
-
-        h1 {
-            font-size: 2rem;
-        }
+        background-color: transparent;
     }
 
     .registration-wrapper {
