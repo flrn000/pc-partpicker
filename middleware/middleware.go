@@ -21,7 +21,7 @@ func AddSecureHeaders(next http.Handler) http.Handler {
 	return http.HandlerFunc(
 		func(w http.ResponseWriter, r *http.Request) {
 			w.Header().Set("Content-Security-Policy",
-				"default-src 'self'; style-src 'self' fonts.googleapis.com; font-src fonts.gstatic.com")
+				"default-src 'self'; script-src 'self' cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' fonts.googleapis.com cdn.jsdelivr.net; font-src fonts.gstatic.com")
 
 			w.Header().Set("Referrer-Policy", "origin-when-cross-origin")
 			w.Header().Set("X-Content-Type-Options", "nosniff")
