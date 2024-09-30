@@ -3,6 +3,9 @@
        geometric humanist font */
     --font-system: Avenir, Montserrat, Corbel, source-sans-pro, sans-serif;
 
+    --main-header-z-index: 10;
+    --nav-z-index: 5;
+
     --background-primary-color: rgb(40, 40, 56);
     --background-secondary-color: rgb(70, 70, 91);
     --background-tertiary-color: rgb(9, 9, 15);

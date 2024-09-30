@@ -27,7 +27,7 @@
                             Builder
                         </a>
                     </li>
-                    <li class="nav-item">
+                    <li class="nav-item js-trigger-products-list">
                         <a href="#">
                             <svg class="nav__icon" xmlns="http://www.w3.org/2000/svg">
                                 <path fill-rule="evenodd" clip-rule="evenodd"
@@ -35,6 +35,12 @@
                                 </path>
                             </svg>
                             Products
+
+                            <span class="down-caret">
+                                <svg class="icon shape-dropdown-arrow" aria-hidden="true">
+                                    <use xlink:href="#shape-dropdown-arrow"></use>
+                                </svg>
+                            </span>
                         </a>
                     </li>
                     <li class="nav-item">
@@ -88,6 +94,62 @@
                             </svg>
                             Benchmarks
                         </a>
+                    </li>
+                    <li class="nav-products-list hide">
+                        <div class="products-list-wrapper">
+                            <div class="products-block">
+                                <ul class="popular-products">
+                                    <li>
+                                        <a href="/products/procesor">
+                                            <img src="/static/images/nav-cpu-2023.png" alt="procesoare">
+                                            Procesoare
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a href="/products/placa-video">
+                                            <img src="/static/images/nav-videocard-2023.png" alt="placi video">
+                                            Placi Video
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a href="/products/placa-de-baza">
+                                            <img src="/static/images/nav-motherboard-2023.png" alt="placi de baza">
+                                            Placi de baza
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a href="/products/memorie">
+                                            <img src="/static/images/nav-memory-2023.png" alt="memorie">
+                                            Memorii RAM
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a href="/products/stocare">
+                                            <img src="/static/images/nav-ssd-2023.png" alt="ssd">
+                                            SSD si HDD
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a href="/products/surse">
+                                            <img src="/static/images/nav-powersupply-2023.png" alt="surse">
+                                            Surse
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a href="/products/carcase">
+                                            <img src="/static/images/nav-case-2023.png" alt="carcase">
+                                            Carcase
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a href="/products/cooler-cpu">
+                                            <img src="/static/images/nav-cpucooler-2023.png" alt="coolere cpu">
+                                            Coolere
+                                        </a>
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
                     </li>
                 </ul>
                 <a class="nav__search js-trigger-offCanvas--search" href="#" role="button" aria-label="Search Products"

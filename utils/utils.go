@@ -83,6 +83,7 @@ func RenderTemplate(
 	files := []string{
 		"./client/html/base.tmpl",
 		"./client/html/partials/nav.tmpl",
+		"./client/html/partials/icons.tmpl",
 		fmt.Sprintf("./client/html/pages/%s", page),
 	}
 
