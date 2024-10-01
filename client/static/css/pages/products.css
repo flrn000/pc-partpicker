@@ -1,6 +1,12 @@
 .page-products {
     .product-list-wrapper {
         padding: 3rem 0;
+        max-width: 95%;
+        margin: 0 auto;
+
+        @media screen and (min-width: 768px) {
+            max-width: 90%;
+        }
     }
 
     .productList--detailed {

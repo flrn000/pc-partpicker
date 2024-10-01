@@ -3,6 +3,10 @@
        geometric humanist font */
     --font-system: Avenir, Montserrat, Corbel, source-sans-pro, sans-serif;
 
+    --size-desktop: 1440px;
+    --size-laptop: 1024px;
+    --size-tablet: 768px;
+
     --main-header-z-index: 10;
     --nav-z-index: 5;
 
