@@ -5,6 +5,7 @@ import (
 	"database/sql"
 	"errors"
 	"fmt"
+	"time"
 
 	"github.com/flrn000/pc-partpicker/types"
 	"github.com/jackc/pgx/v5"
@@ -25,8 +26,12 @@ func (cs *ComponentStore) Create(component *types.Component) error {
 		VALUES ($1, $2, $3, $4, $5, $6, $7)
 		RETURNING id, created_at, updated_at
 	`
+
+	ctx, cancel := context.WithTimeout(context.Background(), time.Second*3)
+	defer cancel()
+
 	err := cs.dbPool.QueryRow(
-		context.Background(),
+		ctx,
 		query,
 		component.Name,
 		component.Type,
@@ -47,7 +52,10 @@ func (cs *ComponentStore) Create(component *types.Component) error {
 func (cs *ComponentStore) Get(id int) (*types.Component, error) {
 	result := &types.Component{}
 
-	err := cs.dbPool.QueryRow(context.Background(), "SELECT * FROM components WHERE id=$1", id).Scan(
+	ctx, cancel := context.WithTimeout(context.Background(), time.Second*3)
+	defer cancel()
+
+	err := cs.dbPool.QueryRow(ctx, "SELECT * FROM components WHERE id=$1", id).Scan(
 		&result.ID,
 		&result.CreatedAt,
 		&result.UpdatedAt,
@@ -80,7 +88,10 @@ func (cs *ComponentStore) GetMany(limit int, componentType types.ComponentType) 
 		LIMIT $2
 	`
 
-	rows, err := cs.dbPool.Query(context.Background(), query, componentType, limit)
+	ctx, cancel := context.WithTimeout(context.Background(), time.Second*3)
+	defer cancel()
+
+	rows, err := cs.dbPool.Query(ctx, query, componentType, limit)
 	if err != nil {
 		return nil, err
 	}
