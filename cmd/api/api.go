@@ -39,6 +39,7 @@ func NewAPIServer(
 func (s *APIServer) Start() error {
 	mux := http.NewServeMux()
 	var handler http.Handler = mux
+	handler = middleware.RateLimit(handler)
 	addLogging := middleware.NewLogging(s.logger)
 	handler = addLogging(handler)
 	handler = middleware.AddSecureHeaders(handler)
