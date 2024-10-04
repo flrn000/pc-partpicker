@@ -14,6 +14,7 @@ import (
 
 type APIServer struct {
 	address        string
+	jwtSecret      string
 	validator      *utils.Validator
 	logger         *slog.Logger
 	userStore      *data.UserStore
@@ -22,6 +23,7 @@ type APIServer struct {
 
 func NewAPIServer(
 	addr string,
+	jwtSecret string,
 	validator *utils.Validator,
 	logger *slog.Logger,
 	userStore *data.UserStore,
@@ -29,6 +31,7 @@ func NewAPIServer(
 ) *APIServer {
 	return &APIServer{
 		address:        addr,
+		jwtSecret:      jwtSecret,
 		validator:      validator,
 		logger:         logger,
 		userStore:      userStore,
@@ -39,6 +42,7 @@ func NewAPIServer(
 func (s *APIServer) Start() error {
 	mux := http.NewServeMux()
 	var handler http.Handler = mux
+
 	handler = middleware.RateLimit(handler)
 	addLogging := middleware.NewLogging(s.logger)
 	handler = addLogging(handler)
@@ -47,11 +51,17 @@ func (s *APIServer) Start() error {
 	srv := &http.Server{
 		Handler:      handler,
 		Addr:         s.address,
-		ReadTimeout:  3 * time.Second,
-		WriteTimeout: 3 * time.Second,
+		ReadTimeout:  5 * time.Second,
+		WriteTimeout: 10 * time.Second,
 	}
 
-	service.AddRoutes(mux, s.validator, s.userStore, s.componentStore)
+	service.AddRoutes(
+		mux,
+		s.jwtSecret,
+		s.validator,
+		s.userStore,
+		s.componentStore,
+	)
 
 	log.Println("Listening on", s.address)
 

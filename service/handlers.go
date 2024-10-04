@@ -1,8 +1,11 @@
 package service
 
 import (
+	"errors"
 	"fmt"
 	"net/http"
+	"strconv"
+	"time"
 
 	"github.com/flrn000/pc-partpicker/data"
 	"github.com/flrn000/pc-partpicker/types"
@@ -34,11 +37,16 @@ func handleRegisterPage() http.Handler {
 	)
 }
 
-func handleLogin(userStore *data.UserStore) http.Handler {
+func handleLogin(userStore *data.UserStore, jwtSecret string) http.Handler {
 	type LoginUserPayload struct {
 		Email    string `json:"email"`
 		Password string `json:"password"`
 	}
+	type ResponsePayload struct {
+		ID    int    `json:"id"`
+		Token string `json:"token"`
+	}
+
 	return http.HandlerFunc(
 		func(w http.ResponseWriter, r *http.Request) {
 			payload, err := utils.Decode[LoginUserPayload](r)
@@ -48,15 +56,29 @@ func handleLogin(userStore *data.UserStore) http.Handler {
 			}
 			u, err := userStore.GetByEmail(payload.Email)
 			if err != nil {
-				utils.WriteError(w, r, http.StatusBadRequest, fmt.Errorf("user with email %s doesn't exist", payload.Email))
+				utils.WriteError(w, r, http.StatusUnauthorized, errors.New("email or password are incorrect"))
 				return
 			}
 
 			err = bcrypt.CompareHashAndPassword([]byte(u.Password), []byte(payload.Password))
 			if err != nil {
-				utils.WriteError(w, r, http.StatusUnauthorized, err)
+				utils.WriteError(w, r, http.StatusUnauthorized, errors.New("email or password are incorrect"))
 				return
 			}
+
+			token, err := utils.GenerateJWT(strconv.Itoa(u.ID), jwtSecret, time.Hour)
+			if err != nil {
+				utils.WriteError(w, r, http.StatusInternalServerError, err)
+				return
+			}
+
+			result := ResponsePayload{
+				ID:    u.ID,
+				Token: token,
+			}
+
+			w.Header().Set("Location", "/")
+			utils.Encode(w, r, http.StatusSeeOther, result)
 		},
 	)
 }

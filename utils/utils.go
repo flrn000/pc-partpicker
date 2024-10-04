@@ -3,12 +3,17 @@ package utils
 import (
 	"bytes"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"html/template"
 	"log/slog"
 	"net/http"
+	"strconv"
 	"strings"
+	"time"
 	"unicode/utf8"
+
+	"github.com/golang-jwt/jwt/v5"
 )
 
 type Validator struct {
@@ -104,4 +109,52 @@ func RenderTemplate(
 	w.WriteHeader(status)
 
 	buf.WriteTo(w)
+}
+
+func GenerateJWT(subject, secret string, expiresIn time.Duration) (string, error) {
+	if subject == "" || secret == "" {
+		return "", errors.New("secret and subject must not be empty")
+	}
+
+	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.RegisteredClaims{
+		Issuer:    "PC Builder",
+		Subject:   subject,
+		IssuedAt:  jwt.NewNumericDate(time.Now().UTC()),
+		ExpiresAt: jwt.NewNumericDate(time.Now().Add(expiresIn)),
+	})
+
+	signedToken, err := token.SignedString([]byte(secret))
+	if err != nil {
+		return "", fmt.Errorf("in generateJWT: %v", err)
+	}
+
+	return signedToken, nil
+}
+
+func ValidateJWT(token, jwtSecret string) (userID int, invalidToken error) {
+	// Use this option in order to prevent attacks such as https://auth0.com/blog/critical-vulnerabilities-in-json-web-token-libraries/
+	validMethods := jwt.WithValidMethods([]string{jwt.SigningMethodHS256.Name})
+	t, err := jwt.ParseWithClaims(
+		token,
+		&jwt.RegisteredClaims{},
+		func(t *jwt.Token) (interface{}, error) {
+			return []byte(jwtSecret), nil
+		},
+		validMethods,
+	)
+	if err != nil {
+		return 0, err
+	}
+
+	subject, err := t.Claims.GetSubject()
+	if err != nil {
+		return 0, err
+	}
+
+	userID, err = strconv.Atoi(subject)
+	if err != nil {
+		return 0, err
+	}
+
+	return userID, nil
 }

@@ -25,6 +25,8 @@ func main() {
 		os.Exit(1)
 	}
 
+	JWTSecret := os.Getenv("JWT_SECRET")
+
 	dbpool, err := db.NewPSQLStorage(os.Getenv("DATABASE_URL"))
 	if err != nil {
 		logger.Error(fmt.Sprintf("Unable to create connection pool: %v\n", err))
@@ -48,7 +50,14 @@ func main() {
 	componentStore := data.NewComponentStore(dbpool)
 	validator := &utils.Validator{}
 
-	server := api.NewAPIServer(*addr, validator, logger, userStore, componentStore)
+	server := api.NewAPIServer(
+		*addr,
+		JWTSecret,
+		validator,
+		logger,
+		userStore,
+		componentStore,
+	)
 	if err := server.Start(); err != nil {
 		logger.Error(fmt.Sprintf("starting server: %v", err))
 		os.Exit(1)
