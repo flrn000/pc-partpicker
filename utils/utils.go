@@ -8,6 +8,7 @@ import (
 	"html/template"
 	"log/slog"
 	"net/http"
+	"net/mail"
 	"strconv"
 	"strings"
 	"time"
@@ -48,6 +49,10 @@ func MaxChars(val string, n int) bool {
 	return utf8.RuneCountInString(val) <= n
 }
 
+func MinChars(val string, n int) bool {
+	return utf8.RuneCountInString(val) >= n
+}
+
 func IsPermittedInt(val int, permittedValues ...int) bool {
 	for _, v := range permittedValues {
 		if val == v {
@@ -55,6 +60,12 @@ func IsPermittedInt(val int, permittedValues ...int) bool {
 		}
 	}
 	return false
+}
+
+func IsValidEmail(email string) bool {
+	_, err := mail.ParseAddress(email)
+
+	return err == nil
 }
 
 func Encode[T any](w http.ResponseWriter, r *http.Request, status int, v T) error {
@@ -133,7 +144,7 @@ func GenerateJWT(subject, secret string, expiresIn time.Duration) (string, error
 
 func ValidateJWT(token, jwtSecret string) (userID int, invalidToken error) {
 	// Use this option in order to prevent attacks such as https://auth0.com/blog/critical-vulnerabilities-in-json-web-token-libraries/
-	validMethods := jwt.WithValidMethods([]string{jwt.SigningMethodHS256.Name})
+	validMethods := jwt.WithValidMethods([]string{jwt.SigningMethodHS256.Alg()})
 	t, err := jwt.ParseWithClaims(
 		token,
 		&jwt.RegisteredClaims{},
@@ -157,4 +168,20 @@ func ValidateJWT(token, jwtSecret string) (userID int, invalidToken error) {
 	}
 
 	return userID, nil
+}
+
+func GetAuthToken(headers http.Header) (string, error) {
+	auth := headers.Get("Authorization")
+	if len(auth) == 0 {
+		return "", errors.New("no authorization header provided")
+	}
+
+	if !strings.Contains(auth, "Bearer") {
+		return "", errors.New("invalid header format")
+	}
+
+	token := strings.TrimPrefix(auth, "Bearer")
+	token = strings.TrimSpace(token)
+
+	return token, nil
 }

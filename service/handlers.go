@@ -37,10 +37,19 @@ func handleRegisterPage() http.Handler {
 	)
 }
 
+func handleLoginPage() http.Handler {
+	return http.HandlerFunc(
+		func(w http.ResponseWriter, r *http.Request) {
+			utils.RenderTemplate(w, r, http.StatusOK, "login.tmpl", nil)
+		},
+	)
+}
+
 func handleLogin(userStore *data.UserStore, jwtSecret string) http.Handler {
-	type LoginUserPayload struct {
-		Email    string `json:"email"`
-		Password string `json:"password"`
+	type loginForm struct {
+		Email    string
+		Password string
+		utils.Validator
 	}
 	type ResponsePayload struct {
 		ID    int    `json:"id"`
@@ -49,18 +58,43 @@ func handleLogin(userStore *data.UserStore, jwtSecret string) http.Handler {
 
 	return http.HandlerFunc(
 		func(w http.ResponseWriter, r *http.Request) {
-			payload, err := utils.Decode[LoginUserPayload](r)
+			err := r.ParseForm()
 			if err != nil {
 				utils.WriteError(w, r, http.StatusInternalServerError, err)
 				return
 			}
-			u, err := userStore.GetByEmail(payload.Email)
-			if err != nil {
-				utils.WriteError(w, r, http.StatusUnauthorized, errors.New("email or password are incorrect"))
+
+			form := loginForm{
+				Email:    r.PostForm.Get("email"),
+				Password: r.PostForm.Get("password"),
+			}
+
+			form.CheckField(utils.IsNotBlank(form.Email), "email", "Email cannot be blank")
+			form.CheckField(utils.IsValidEmail(form.Email), "email", "Email must be a valid address")
+			form.CheckField(utils.IsNotBlank(form.Password), "password", "Password cannot be blank")
+
+			if !form.IsValid() {
+				data := templateData{
+					Form: form,
+				}
+
+				utils.RenderTemplate(w, r, http.StatusUnprocessableEntity, "login.tmpl", data)
+
 				return
 			}
 
-			err = bcrypt.CompareHashAndPassword([]byte(u.Password), []byte(payload.Password))
+			u, err := userStore.GetByEmail(form.Email)
+			if err != nil {
+				form.AddFieldError("email", "Email address is incorrect")
+				data := templateData{
+					Form: form,
+				}
+
+				utils.RenderTemplate(w, r, http.StatusUnprocessableEntity, "login.tmpl", data)
+				return
+			}
+
+			err = bcrypt.CompareHashAndPassword([]byte(u.Password), []byte(form.Password))
 			if err != nil {
 				utils.WriteError(w, r, http.StatusUnauthorized, errors.New("email or password are incorrect"))
 				return
@@ -83,11 +117,12 @@ func handleLogin(userStore *data.UserStore, jwtSecret string) http.Handler {
 	)
 }
 
-func handleRegister(userStore *data.UserStore, validator *utils.Validator) http.Handler {
+func handleRegister(userStore *data.UserStore) http.Handler {
 	type registerForm struct {
-		Username    string
-		Email       string
-		FieldErrors map[string]string
+		Username string
+		Email    string
+		Password string
+		utils.Validator
 	}
 
 	return http.HandlerFunc(
@@ -98,21 +133,21 @@ func handleRegister(userStore *data.UserStore, validator *utils.Validator) http.
 				return
 			}
 
-			username := r.PostForm.Get("username")
-			email := r.PostForm.Get("email")
-			password := r.PostForm.Get("password")
+			form := registerForm{
+				Username: r.PostForm.Get("username"),
+				Email:    r.PostForm.Get("email"),
+				Password: r.PostForm.Get("password"),
+			}
 
-			validator.CheckField(utils.IsNotBlank(username), "username", "The username cannot be blank")
-			validator.CheckField(utils.IsNotBlank(email), "email", "The email cannot be blank")
-			validator.CheckField(utils.IsNotBlank(password), "password", "The password cannot be blank")
+			form.CheckField(utils.IsNotBlank(form.Username), "username", "The username cannot be blank")
+			form.CheckField(utils.IsNotBlank(form.Email), "email", "The email cannot be blank")
+			form.CheckField(utils.IsValidEmail(form.Email), "email", "Email must be a valid address")
+			form.CheckField(utils.IsNotBlank(form.Password), "password", "The password cannot be blank")
+			form.CheckField(utils.MinChars(form.Password, 8), "password", "The password must be at least 8 characters long")
 
-			if !validator.IsValid() {
+			if !form.IsValid() {
 				data := templateData{
-					Form: registerForm{
-						Username:    username,
-						Email:       email,
-						FieldErrors: validator.FieldErrors,
-					},
+					Form: form,
 				}
 
 				utils.RenderTemplate(w, r, http.StatusUnprocessableEntity, "register.tmpl", data)
@@ -120,20 +155,25 @@ func handleRegister(userStore *data.UserStore, validator *utils.Validator) http.
 				return
 			}
 
-			if _, err := userStore.GetByEmail(email); err == nil {
-				utils.WriteError(w, r, http.StatusBadRequest, fmt.Errorf("user with email %s already exists", email))
+			if _, err := userStore.GetByEmail(form.Email); err == nil {
+				form.AddFieldError("email", "Email address is already in use")
+				data := templateData{
+					Form: form,
+				}
+
+				utils.RenderTemplate(w, r, http.StatusUnprocessableEntity, "register.tmpl", data)
 				return
 			}
 
-			hashedPassword, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
+			hashedPassword, err := bcrypt.GenerateFromPassword([]byte(form.Password), bcrypt.DefaultCost)
 			if err != nil {
 				utils.WriteError(w, r, http.StatusInternalServerError, err)
 				return
 			}
 
 			user := &types.User{
-				UserName: username,
-				Email:    email,
+				UserName: form.Username,
+				Email:    form.Email,
 				Password: string(hashedPassword),
 			}
 
@@ -143,13 +183,7 @@ func handleRegister(userStore *data.UserStore, validator *utils.Validator) http.
 				return
 			}
 
-			w.Header().Set("Location", fmt.Sprintf("api/v1/users/%d", user.ID))
-
-			err = utils.Encode(w, r, http.StatusCreated, user)
-			if err != nil {
-				utils.WriteError(w, r, http.StatusInternalServerError, err)
-				return
-			}
+			http.Redirect(w, r, "/accounts/login", http.StatusSeeOther)
 		},
 	)
 }

@@ -97,6 +97,12 @@ footer {
     grid-area: footer;
 }
 
+.field-wrapper {
+    &:not(:first-of-type) {
+        margin-top: 2rem;
+    }
+}
+
 .card {
     padding: 3rem;
     border-radius: 0.5rem;
@@ -278,6 +284,7 @@ footer {
             opacity: 0;
             transform: translateY(-3.25rem);
             z-index: -1;
+            top: -50vh;
         }
 
         .products-list-wrapper {

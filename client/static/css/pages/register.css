@@ -8,10 +8,4 @@
         margin: 0 auto;
         padding-bottom: 2rem;
     }
-
-    .field-wrapper {
-        &:not(:first-of-type) {
-            margin-top: 2rem;
-        }
-    }
 }

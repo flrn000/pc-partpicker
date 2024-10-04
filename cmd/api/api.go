@@ -15,7 +15,7 @@ import (
 type APIServer struct {
 	address        string
 	jwtSecret      string
-	validator      *utils.Validator
+	validator      utils.Validator
 	logger         *slog.Logger
 	userStore      *data.UserStore
 	componentStore *data.ComponentStore
@@ -24,7 +24,6 @@ type APIServer struct {
 func NewAPIServer(
 	addr string,
 	jwtSecret string,
-	validator *utils.Validator,
 	logger *slog.Logger,
 	userStore *data.UserStore,
 	componentStore *data.ComponentStore,
@@ -32,7 +31,6 @@ func NewAPIServer(
 	return &APIServer{
 		address:        addr,
 		jwtSecret:      jwtSecret,
-		validator:      validator,
 		logger:         logger,
 		userStore:      userStore,
 		componentStore: componentStore,
@@ -43,7 +41,6 @@ func (s *APIServer) Start() error {
 	mux := http.NewServeMux()
 	var handler http.Handler = mux
 
-	handler = middleware.RateLimit(handler)
 	addLogging := middleware.NewLogging(s.logger)
 	handler = addLogging(handler)
 	handler = middleware.AddSecureHeaders(handler)
@@ -58,7 +55,6 @@ func (s *APIServer) Start() error {
 	service.AddRoutes(
 		mux,
 		s.jwtSecret,
-		s.validator,
 		s.userStore,
 		s.componentStore,
 	)

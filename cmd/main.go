@@ -12,7 +12,6 @@ import (
 	"github.com/flrn000/pc-partpicker/data"
 	"github.com/flrn000/pc-partpicker/db"
 	"github.com/flrn000/pc-partpicker/logging"
-	"github.com/flrn000/pc-partpicker/utils"
 	"github.com/joho/godotenv"
 )
 
@@ -48,12 +47,10 @@ func main() {
 
 	userStore := data.NewUserStore(dbpool)
 	componentStore := data.NewComponentStore(dbpool)
-	validator := &utils.Validator{}
 
 	server := api.NewAPIServer(
 		*addr,
 		JWTSecret,
-		validator,
 		logger,
 		userStore,
 		componentStore,
