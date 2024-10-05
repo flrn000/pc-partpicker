@@ -18,11 +18,16 @@ import (
 )
 
 type Validator struct {
-	FieldErrors map[string]string
+	FieldErrors  map[string]string
+	CommonErrors []string
 }
 
 func (v *Validator) IsValid() bool {
-	return len(v.FieldErrors) == 0
+	return len(v.FieldErrors) == 0 && len(v.CommonErrors) == 0
+}
+
+func (v *Validator) AddCommonError(message string) {
+	v.CommonErrors = append(v.CommonErrors, message)
 }
 
 func (v *Validator) AddFieldError(key, message string) {

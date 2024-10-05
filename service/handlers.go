@@ -85,7 +85,7 @@ func handleLogin(userStore *data.UserStore, jwtSecret string) http.Handler {
 
 			u, err := userStore.GetByEmail(form.Email)
 			if err != nil {
-				form.AddFieldError("email", "Email address is incorrect")
+				form.AddCommonError("Email or password is incorrect")
 				data := templateData{
 					Form: form,
 				}
@@ -96,8 +96,18 @@ func handleLogin(userStore *data.UserStore, jwtSecret string) http.Handler {
 
 			err = bcrypt.CompareHashAndPassword([]byte(u.Password), []byte(form.Password))
 			if err != nil {
-				utils.WriteError(w, r, http.StatusUnauthorized, errors.New("email or password are incorrect"))
-				return
+				if errors.Is(err, bcrypt.ErrMismatchedHashAndPassword) {
+					form.AddCommonError("Email or password is incorrect")
+					data := templateData{
+						Form: form,
+					}
+
+					utils.RenderTemplate(w, r, http.StatusUnprocessableEntity, "login.tmpl", data)
+					return
+				} else {
+					utils.WriteError(w, r, http.StatusInternalServerError, errors.New(http.StatusText(http.StatusInternalServerError)))
+					return
+				}
 			}
 
 			token, err := utils.GenerateJWT(strconv.Itoa(u.ID), jwtSecret, time.Hour)

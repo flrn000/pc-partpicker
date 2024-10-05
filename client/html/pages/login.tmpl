@@ -9,6 +9,11 @@
     <div class="login-wrapper">
         <div class="card">
             <form action="/api/v1/login" method="post">
+                {{range .Form.CommonErrors}}
+                <div class="common-error">
+                    {{.}}
+                </div>
+                {{end}}
                 <div class="field-wrapper">
                     <label for="email">Email:</label>
                     {{with .Form.FieldErrors.email}}
