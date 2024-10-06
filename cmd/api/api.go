@@ -9,16 +9,15 @@ import (
 	"github.com/flrn000/pc-partpicker/data"
 	"github.com/flrn000/pc-partpicker/middleware"
 	"github.com/flrn000/pc-partpicker/service"
-	"github.com/flrn000/pc-partpicker/utils"
 )
 
 type APIServer struct {
-	address        string
-	jwtSecret      string
-	validator      utils.Validator
-	logger         *slog.Logger
-	userStore      *data.UserStore
-	componentStore *data.ComponentStore
+	address           string
+	jwtSecret         string
+	logger            *slog.Logger
+	userStore         *data.UserStore
+	refreshTokenStore *data.RefreshTokenStore
+	componentStore    *data.ComponentStore
 }
 
 func NewAPIServer(
@@ -26,14 +25,16 @@ func NewAPIServer(
 	jwtSecret string,
 	logger *slog.Logger,
 	userStore *data.UserStore,
+	refreshTokenStore *data.RefreshTokenStore,
 	componentStore *data.ComponentStore,
 ) *APIServer {
 	return &APIServer{
-		address:        addr,
-		jwtSecret:      jwtSecret,
-		logger:         logger,
-		userStore:      userStore,
-		componentStore: componentStore,
+		address:           addr,
+		jwtSecret:         jwtSecret,
+		logger:            logger,
+		userStore:         userStore,
+		refreshTokenStore: refreshTokenStore,
+		componentStore:    componentStore,
 	}
 }
 
@@ -56,6 +57,7 @@ func (s *APIServer) Start() error {
 		mux,
 		s.jwtSecret,
 		s.userStore,
+		s.refreshTokenStore,
 		s.componentStore,
 	)
 

@@ -2,6 +2,8 @@ package utils
 
 import (
 	"bytes"
+	"crypto/rand"
+	"encoding/hex"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -187,6 +189,18 @@ func GetAuthToken(headers http.Header) (string, error) {
 
 	token := strings.TrimPrefix(auth, "Bearer")
 	token = strings.TrimSpace(token)
+
+	return token, nil
+}
+
+func GenerateRefreshToken() (string, error) {
+	buf := make([]byte, 32)
+	_, err := rand.Read(buf)
+	if err != nil {
+		return "", err
+	}
+
+	token := hex.EncodeToString(buf)
 
 	return token, nil
 }

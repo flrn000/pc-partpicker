@@ -1,6 +1,7 @@
 package types
 
 import (
+	"database/sql"
 	"errors"
 	"time"
 )
@@ -53,4 +54,13 @@ type CreateProductPayload struct {
 	Price        string `json:"price"`
 	Rating       int16  `json:"rating"`
 	ImageURL     string `json:"image_url"`
+}
+
+type RefreshToken struct {
+	Value     string       `json:"refresh_token,omitempty"`
+	CreatedAt time.Time    `json:"created_at,omitempty"`
+	UpdatedAt time.Time    `json:"updated_at,omitempty"`
+	UserID    int          `json:"-"`
+	ExpiresAt time.Time    `json:"expires_at,omitempty"`
+	RevokedAt sql.NullTime `json:"-"`
 }

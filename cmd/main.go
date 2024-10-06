@@ -47,12 +47,14 @@ func main() {
 
 	userStore := data.NewUserStore(dbpool)
 	componentStore := data.NewComponentStore(dbpool)
+	refreshTokenStore := data.NewRefreshTokenStore(dbpool)
 
 	server := api.NewAPIServer(
 		*addr,
 		JWTSecret,
 		logger,
 		userStore,
+		refreshTokenStore,
 		componentStore,
 	)
 	if err := server.Start(); err != nil {

@@ -11,6 +11,7 @@ func AddRoutes(
 	mux *http.ServeMux,
 	jwtSecret string,
 	userStore *data.UserStore,
+	refreshTokenStore *data.RefreshTokenStore,
 	componentStore *data.ComponentStore,
 ) {
 	mux.Handle("GET /static/", http.StripPrefix("/static/", http.FileServer(http.Dir("./client/static"))))
@@ -20,7 +21,7 @@ func AddRoutes(
 	mux.Handle("GET /accounts/login", middleware.RateLimit(handleLoginPage()))
 	mux.Handle("GET /products/{componentType}", middleware.RateLimit(handleViewProducts(componentStore)))
 
-	mux.Handle("POST /api/v1/login", middleware.RateLimit(handleLogin(userStore, jwtSecret)))
+	mux.Handle("POST /api/v1/login", middleware.RateLimit(handleLogin(userStore, refreshTokenStore, jwtSecret)))
 	mux.Handle("POST /api/v1/register", middleware.RateLimit(handleRegister(userStore)))
 
 	mux.Handle("POST /api/v1/products", middleware.RateLimit(handleCreateProducts(componentStore)))
