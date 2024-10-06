@@ -45,15 +45,17 @@ func handleLoginPage() http.Handler {
 	)
 }
 
-func handleLogin(userStore *data.UserStore, jwtSecret string) http.Handler {
+func handleLogin(userStore *data.UserStore, refreshTokenStore *data.RefreshTokenStore, jwtSecret string) http.Handler {
 	type loginForm struct {
 		Email    string
 		Password string
 		utils.Validator
 	}
 	type ResponsePayload struct {
-		ID    int    `json:"id"`
-		Token string `json:"token"`
+		ID           int       `json:"id,omitempty"`
+		CreatedAt    time.Time `json:"created_at,omitempty"`
+		Token        string    `json:"token,omitempty"`
+		RefreshToken string    `json:"refresh_token,omitempty"`
 	}
 
 	return http.HandlerFunc(
@@ -116,13 +118,21 @@ func handleLogin(userStore *data.UserStore, jwtSecret string) http.Handler {
 				return
 			}
 
-			result := ResponsePayload{
-				ID:    u.ID,
-				Token: token,
+			refreshToken, err := refreshTokenStore.Create(u.ID, time.Now().AddDate(0, 0, 60).UTC())
+			if err != nil {
+				utils.WriteError(w, r, http.StatusInternalServerError, err)
+				return
 			}
 
-			w.Header().Set("Location", "/")
-			utils.Encode(w, r, http.StatusSeeOther, result)
+			result := ResponsePayload{
+				ID:           u.ID,
+				CreatedAt:    u.CreatedAt,
+				Token:        token,
+				RefreshToken: refreshToken.Value,
+			}
+
+			// w.Header().Set("Location", "/")
+			utils.Encode(w, r, http.StatusOK, result)
 		},
 	)
 }
