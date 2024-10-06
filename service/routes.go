@@ -5,11 +5,12 @@ import (
 
 	"github.com/flrn000/pc-partpicker/data"
 	"github.com/flrn000/pc-partpicker/middleware"
+	"github.com/flrn000/pc-partpicker/types"
 )
 
 func AddRoutes(
 	mux *http.ServeMux,
-	jwtSecret string,
+	appConfig *types.AppConfig,
 	userStore *data.UserStore,
 	refreshTokenStore *data.RefreshTokenStore,
 	componentStore *data.ComponentStore,
@@ -21,7 +22,7 @@ func AddRoutes(
 	mux.Handle("GET /accounts/login", middleware.RateLimit(handleLoginPage()))
 	mux.Handle("GET /products/{componentType}", middleware.RateLimit(handleViewProducts(componentStore)))
 
-	mux.Handle("POST /api/v1/login", middleware.RateLimit(handleLogin(userStore, refreshTokenStore, jwtSecret)))
+	mux.Handle("POST /api/v1/login", middleware.RateLimit(handleLogin(userStore, refreshTokenStore, appConfig.JWTSecret)))
 	mux.Handle("POST /api/v1/register", middleware.RateLimit(handleRegister(userStore)))
 
 	mux.Handle("POST /api/v1/products", middleware.RateLimit(handleCreateProducts(componentStore)))

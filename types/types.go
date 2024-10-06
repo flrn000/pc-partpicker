@@ -3,8 +3,17 @@ package types
 import (
 	"database/sql"
 	"errors"
+	"log/slog"
 	"time"
 )
+
+type AppConfig struct {
+	Logger    *slog.Logger
+	JWTSecret string
+	Env       string
+	DB_URL    string
+	Address   string
+}
 
 type ComponentType string
 
@@ -19,6 +28,8 @@ const (
 	TypePSU         ComponentType = "sursa"
 	TypeCase        ComponentType = "carcasa"
 )
+
+type UserKey string
 
 var (
 	ErrNoRecord           = errors.New("no matching record found")

@@ -12,27 +12,33 @@ import (
 	"github.com/flrn000/pc-partpicker/data"
 	"github.com/flrn000/pc-partpicker/db"
 	"github.com/flrn000/pc-partpicker/logging"
+	"github.com/flrn000/pc-partpicker/types"
 	"github.com/joho/godotenv"
 )
 
 func main() {
-	logger := logging.NewLogger(slog.NewTextHandler(os.Stderr, nil))
+	appConfig := &types.AppConfig{
+		Logger: logging.NewLogger(slog.NewTextHandler(os.Stderr, nil)),
+	}
 
 	err := godotenv.Load()
 	if err != nil {
-		logger.Error("Error loading .env file")
+		appConfig.Logger.Error("Error loading .env file")
 		os.Exit(1)
 	}
 
-	JWTSecret := os.Getenv("JWT_SECRET")
+	flag.StringVar(&appConfig.Env, "env", "development", "Environment (development|staging|production)")
+	flag.StringVar(&appConfig.Address, "address", ":8080", "HTTP network address")
 
-	dbpool, err := db.NewPSQLStorage(os.Getenv("DATABASE_URL"))
+	flag.StringVar(&appConfig.DB_URL, "db-dsn", os.Getenv("DATABASE_URL"), "PostgreSQL DSN")
+
+	flag.StringVar(&appConfig.JWTSecret, "jwtSecret", os.Getenv("JWT_SECRET"), "JWT Secret")
+
+	dbpool, err := db.NewPSQLStorage(appConfig.DB_URL)
 	if err != nil {
-		logger.Error(fmt.Sprintf("Unable to create connection pool: %v\n", err))
+		appConfig.Logger.Error(fmt.Sprintf("Unable to create connection pool: %v\n", err))
 		os.Exit(1)
 	}
-
-	addr := flag.String("address", ":8080", "HTTP network address")
 
 	flag.Parse()
 
@@ -43,22 +49,20 @@ func main() {
 		log.Fatalf("Unable to connect to the database: %v", err)
 	}
 
-	logger.Info("Connected to the database successfully!")
+	appConfig.Logger.Info("Connected to the database successfully!")
 
 	userStore := data.NewUserStore(dbpool)
 	componentStore := data.NewComponentStore(dbpool)
 	refreshTokenStore := data.NewRefreshTokenStore(dbpool)
 
 	server := api.NewAPIServer(
-		*addr,
-		JWTSecret,
-		logger,
+		appConfig,
 		userStore,
 		refreshTokenStore,
 		componentStore,
 	)
 	if err := server.Start(); err != nil {
-		logger.Error(fmt.Sprintf("starting server: %v", err))
+		appConfig.Logger.Error(fmt.Sprintf("starting server: %v", err))
 		os.Exit(1)
 	}
 }
