@@ -2,6 +2,7 @@ package utils
 
 import (
 	"bytes"
+	"context"
 	"crypto/rand"
 	"encoding/hex"
 	"encoding/json"
@@ -16,6 +17,7 @@ import (
 	"time"
 	"unicode/utf8"
 
+	"github.com/flrn000/pc-partpicker/types"
 	"github.com/golang-jwt/jwt/v5"
 )
 
@@ -203,4 +205,21 @@ func GenerateRefreshToken() (string, error) {
 	token := hex.EncodeToString(buf)
 
 	return token, nil
+}
+
+func ContextSetUser(r *http.Request, user *types.User) *http.Request {
+	ctx := context.WithValue(r.Context(), types.UserContextKey, user)
+
+	r = r.WithContext(ctx)
+
+	return r
+}
+
+func ContextGetUser(r *http.Request) *types.User {
+	user, ok := r.Context().Value(types.UserContextKey).(*types.User)
+	if !ok {
+		panic("missing user value in request context")
+	}
+
+	return user
 }

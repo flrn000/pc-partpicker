@@ -15,6 +15,8 @@ func AddRoutes(
 	refreshTokenStore *data.RefreshTokenStore,
 	componentStore *data.ComponentStore,
 ) {
+	authenticate := middleware.WithAuthenticate(appConfig.JWTSecret, userStore)
+
 	mux.Handle("GET /static/", http.StripPrefix("/static/", http.FileServer(http.Dir("./client/static"))))
 
 	mux.Handle("GET /{$}", middleware.RateLimit(handleIndex()))
@@ -25,5 +27,5 @@ func AddRoutes(
 	mux.Handle("POST /api/v1/login", middleware.RateLimit(handleLogin(userStore, refreshTokenStore, appConfig.JWTSecret)))
 	mux.Handle("POST /api/v1/register", middleware.RateLimit(handleRegister(userStore)))
 
-	mux.Handle("POST /api/v1/products", middleware.RateLimit(handleCreateProducts(componentStore)))
+	mux.Handle("POST /api/v1/products", middleware.RateLimit(authenticate(handleCreateProducts(componentStore))))
 }

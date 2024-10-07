@@ -5,6 +5,8 @@ import (
 	"log/slog"
 	"net/http"
 
+	"github.com/flrn000/pc-partpicker/data"
+	"github.com/flrn000/pc-partpicker/types"
 	"github.com/flrn000/pc-partpicker/utils"
 	"golang.org/x/time/rate"
 )
@@ -48,4 +50,29 @@ func RateLimit(next http.Handler) http.Handler {
 
 		next.ServeHTTP(w, r)
 	})
+}
+
+func WithAuthenticate(jwtSecret string, userStore *data.UserStore) func(next http.Handler) http.Handler {
+	return func(next http.Handler) http.Handler {
+		return http.HandlerFunc(
+			func(w http.ResponseWriter, r *http.Request) {
+				token, err := utils.GetAuthToken(r.Header)
+				if err != nil {
+					w.Header().Set("WWW-Authenticate", "Bearer")
+					utils.WriteError(w, r, http.StatusUnauthorized, err)
+					return
+				}
+
+				userID, err := utils.ValidateJWT(token, jwtSecret)
+				if err != nil {
+					utils.WriteError(w, r, http.StatusUnauthorized, err)
+					return
+				}
+
+				r = utils.ContextSetUser(r, &types.User{ID: userID})
+
+				next.ServeHTTP(w, r)
+			},
+		)
+	}
 }

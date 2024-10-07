@@ -29,7 +29,9 @@ const (
 	TypeCase        ComponentType = "carcasa"
 )
 
-type UserKey string
+type ContextKey string
+
+const UserContextKey = ContextKey("user")
 
 var (
 	ErrNoRecord           = errors.New("no matching record found")
