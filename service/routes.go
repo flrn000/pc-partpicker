@@ -28,4 +28,5 @@ func AddRoutes(
 	mux.Handle("POST /api/v1/register", middleware.RateLimit(handleRegister(userStore)))
 
 	mux.Handle("POST /api/v1/products", middleware.RateLimit(authenticate(handleCreateProducts(componentStore))))
+	mux.Handle("POST /api/v1/refresh", middleware.RateLimit(handleRefresh(refreshTokenStore, appConfig.JWTSecret)))
 }

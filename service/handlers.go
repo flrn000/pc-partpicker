@@ -262,3 +262,40 @@ func handleViewProducts(componentStore *data.ComponentStore) http.Handler {
 		},
 	)
 }
+
+func handleRefresh(refreshTokenStore *data.RefreshTokenStore, jwtSecret string) http.Handler {
+	type ResponsePayload struct {
+		Token string `json:"token,omitempty"`
+	}
+	return http.HandlerFunc(
+		func(w http.ResponseWriter, r *http.Request) {
+			authToken, err := utils.GetAuthToken(r.Header)
+			if err != nil {
+				utils.WriteError(w, r, http.StatusUnauthorized, err)
+				return
+			}
+
+			refreshToken, err := refreshTokenStore.Get(authToken)
+			if err != nil {
+				utils.WriteError(w, r, http.StatusUnauthorized, err)
+				return
+			}
+
+			if time.Now().After(refreshToken.ExpiresAt) {
+				utils.WriteError(w, r, http.StatusUnauthorized, errors.New("refresh token has expired"))
+				return
+			}
+
+			jwt, err := utils.GenerateJWT(strconv.Itoa(refreshToken.UserID), jwtSecret, time.Hour)
+			if err != nil {
+				utils.WriteError(w, r, http.StatusInternalServerError, err)
+			}
+
+			err = utils.Encode(w, r, http.StatusOK, ResponsePayload{Token: jwt})
+			if err != nil {
+				utils.WriteError(w, r, http.StatusInternalServerError, err)
+				return
+			}
+		},
+	)
+}

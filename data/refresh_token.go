@@ -2,6 +2,8 @@ package data
 
 import (
 	"context"
+	"database/sql"
+	"errors"
 	"fmt"
 	"time"
 
@@ -47,4 +49,33 @@ func (r *RefreshTokenStore) Create(userID int, expiresAt time.Time) (types.Refre
 	result.ExpiresAt = expiresAt
 
 	return result, nil
+}
+
+func (r *RefreshTokenStore) Get(token string) (types.RefreshToken, error) {
+	query := `
+		SELECT * FROM refresh_tokens
+		WHERE token = $1
+	`
+
+	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
+	defer cancel()
+
+	refreshToken := types.RefreshToken{}
+
+	err := r.dbPool.QueryRow(ctx, query, token).Scan(
+		&refreshToken.Value,
+		&refreshToken.CreatedAt,
+		&refreshToken.UpdatedAt,
+		&refreshToken.UserID,
+		&refreshToken.ExpiresAt,
+		&refreshToken.RevokedAt,
+	)
+	if err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			return refreshToken, types.ErrNoRecord
+		}
+		return refreshToken, err
+	}
+
+	return refreshToken, nil
 }
