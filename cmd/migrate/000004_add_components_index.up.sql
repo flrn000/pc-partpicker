@@ -1,0 +1,1 @@
+CREATE INDEX IF NOT EXISTS components_name_idx ON components USING GIN (to_tsvector('simple', name));
