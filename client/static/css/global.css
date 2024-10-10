@@ -340,6 +340,33 @@ footer {
     }
 }
 
+.searchField {
+    background-color: var(--nav-item-background-active);
+
+    .search-wrapper {
+        max-width: 95%;
+        margin: 0 auto;
+        padding: 1.5rem 0;
+
+        @media screen and (min-width: 768px) {
+            max-width: 90%;
+        }
+
+        form {
+            display: flex;
+            gap: 1rem;
+
+            input {
+                flex: 1 1 auto;
+            }
+
+            button {
+                flex: 0 0 auto;
+            }
+        }
+    }
+}
+
 .page-wrapper {
     background-color: var(--background-primary-color);
     height: 100%;
