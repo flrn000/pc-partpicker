@@ -79,8 +79,8 @@ func IsValidEmail(email string) bool {
 }
 
 func ValidateFilters(v *Validator, f types.Filters) {
-	v.CheckField(f.Page > 0, "page", "must be greater than zero")
-	v.CheckField(f.Page <= 10_000_000, "page", "must be a maximum of 10 million")
+	// v.CheckField(f.Page > 0, "page", "must be greater than zero")
+	// v.CheckField(f.Page <= 10_000_000, "page", "must be a maximum of 10 million")
 	v.CheckField(f.PageSize > 0, "page_size", "must be greater than zero")
 	v.CheckField(f.PageSize <= 100, "page_size", "must be a maximum of 100")
 }

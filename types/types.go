@@ -18,6 +18,7 @@ type AppConfig struct {
 type ComponentType string
 
 const (
+	TypeDefault     ComponentType = ""
 	TypeCPU         ComponentType = "procesor"
 	TypeGPU         ComponentType = "placa video"
 	TypeMotherboard ComponentType = "placa de baza"
@@ -41,6 +42,7 @@ var (
 type Filters struct {
 	Page     int
 	PageSize int
+	Query    string
 	Sort     string
 }
 

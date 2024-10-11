@@ -247,7 +247,7 @@ func handleViewProducts(componentStore *data.ComponentStore) http.Handler {
 		func(w http.ResponseWriter, r *http.Request) {
 			componentType := r.PathValue("componentType")
 
-			components, err := componentStore.GetMany(60, types.ComponentType(componentType))
+			components, err := componentStore.GetAll(types.ComponentType(componentType), types.Filters{PageSize: 60, Sort: "created_at"})
 			if err != nil {
 				utils.WriteError(w, r, http.StatusBadRequest, err)
 				return
@@ -296,6 +296,41 @@ func handleRefresh(refreshTokenStore *data.RefreshTokenStore, jwtSecret string) 
 				utils.WriteError(w, r, http.StatusInternalServerError, err)
 				return
 			}
+		},
+	)
+}
+
+func handleSearch(componentStore *data.ComponentStore) http.Handler {
+	type Input struct {
+		types.Filters
+		utils.Validator
+	}
+
+	return http.HandlerFunc(
+		func(w http.ResponseWriter, r *http.Request) {
+			urlQuery := r.URL.Query()
+
+			input := Input{
+				Filters: types.Filters{
+					PageSize: utils.ReadInt(urlQuery, "page_size", 20),
+					Query:    utils.ReadString(urlQuery, "q", ""),
+					Sort:     utils.ReadString(urlQuery, "sort", "id"),
+				},
+			}
+
+			utils.ValidateFilters(&input.Validator, input.Filters)
+
+			if !input.IsValid() {
+				utils.WriteError(w, r, http.StatusUnprocessableEntity, fmt.Errorf("invalid filters %v", input.FieldErrors))
+			}
+
+			results, err := componentStore.GetAll("", input.Filters)
+			if err != nil {
+				utils.WriteError(w, r, http.StatusInternalServerError, err)
+				return
+			}
+
+			utils.Encode(w, r, http.StatusOK, results)
 		},
 	)
 }

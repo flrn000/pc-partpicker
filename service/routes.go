@@ -23,6 +23,7 @@ func AddRoutes(
 	mux.Handle("GET /accounts/register", middleware.RateLimit(handleRegisterPage()))
 	mux.Handle("GET /accounts/login", middleware.RateLimit(handleLoginPage()))
 	mux.Handle("GET /products/{componentType}", middleware.RateLimit(handleViewProducts(componentStore)))
+	mux.Handle("GET /search", middleware.RateLimit(handleSearch(componentStore)))
 
 	mux.Handle("POST /api/v1/login", middleware.RateLimit(handleLogin(userStore, refreshTokenStore, appConfig.JWTSecret)))
 	mux.Handle("POST /api/v1/register", middleware.RateLimit(handleRegister(userStore)))

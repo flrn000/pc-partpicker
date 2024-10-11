@@ -79,19 +79,20 @@ func (cs *ComponentStore) Get(id int) (*types.Component, error) {
 	return result, nil
 }
 
-func (cs *ComponentStore) GetMany(limit int, componentType types.ComponentType) ([]*types.Component, error) {
+func (cs *ComponentStore) GetAll(componentType types.ComponentType, filters types.Filters) ([]*types.Component, error) {
 	query := `
-		SELECT id, created_at, updated_at, name, type, manufacturer, model, price, rating, image_path
+		SELECT *
 		FROM components
-		WHERE lower(type) = $1
-		ORDER BY created_at DESC
-		LIMIT $2
+		WHERE lower(type) = $1 OR $1 = ''
+		AND to_tsvector('simple', name) @@ plainto_tsquery('simple', $2) OR $2 = ''
+		ORDER BY $3 DESC
+		LIMIT $4
 	`
 
 	ctx, cancel := context.WithTimeout(context.Background(), time.Second*3)
 	defer cancel()
 
-	rows, err := cs.dbPool.Query(ctx, query, componentType, limit)
+	rows, err := cs.dbPool.Query(ctx, query, componentType, filters.Query, filters.Sort, filters.PageSize)
 	if err != nil {
 		return nil, err
 	}
