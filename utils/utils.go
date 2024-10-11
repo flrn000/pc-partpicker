@@ -12,6 +12,7 @@ import (
 	"log/slog"
 	"net/http"
 	"net/mail"
+	"net/url"
 	"strconv"
 	"strings"
 	"time"
@@ -75,6 +76,13 @@ func IsValidEmail(email string) bool {
 	_, err := mail.ParseAddress(email)
 
 	return err == nil
+}
+
+func ValidateFilters(v *Validator, f types.Filters) {
+	v.CheckField(f.Page > 0, "page", "must be greater than zero")
+	v.CheckField(f.Page <= 10_000_000, "page", "must be a maximum of 10 million")
+	v.CheckField(f.PageSize > 0, "page_size", "must be greater than zero")
+	v.CheckField(f.PageSize <= 100, "page_size", "must be a maximum of 100")
 }
 
 func Encode[T any](w http.ResponseWriter, r *http.Request, status int, v T) error {
@@ -223,4 +231,29 @@ func ContextGetUser(r *http.Request) *types.User {
 	}
 
 	return user
+}
+
+func ReadString(query url.Values, key string, defaultValue string) string {
+	s := query.Get(key)
+
+	if s == "" {
+		return defaultValue
+	}
+
+	return s
+}
+
+func ReadInt(query url.Values, key string, defaultValue int) int {
+	s := query.Get(key)
+
+	if s == "" {
+		return defaultValue
+	}
+
+	i, err := strconv.Atoi(s)
+	if err != nil {
+		return defaultValue
+	}
+
+	return i
 }

@@ -38,6 +38,12 @@ var (
 	ErrInvalidCredentials = errors.New("invalid credentials")
 )
 
+type Filters struct {
+	Page     int
+	PageSize int
+	Sort     string
+}
+
 type User struct {
 	ID        int       `json:"id"`
 	CreatedAt time.Time `json:"created_at"`
