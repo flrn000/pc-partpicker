@@ -20,8 +20,8 @@ type ComponentType string
 const (
 	TypeDefault     ComponentType = ""
 	TypeCPU         ComponentType = "procesor"
-	TypeGPU         ComponentType = "placa video"
-	TypeMotherboard ComponentType = "placa de baza"
+	TypeGPU         ComponentType = "placa-video"
+	TypeMotherboard ComponentType = "placa-de-baza"
 	TypeMemory      ComponentType = "memorie"
 	TypeSSD         ComponentType = "ssd"
 	TypeHDD         ComponentType = "hdd"

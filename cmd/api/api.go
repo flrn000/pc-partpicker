@@ -36,6 +36,7 @@ func (s *APIServer) Start() error {
 	mux := http.NewServeMux()
 	var handler http.Handler = mux
 
+	handler = middleware.RecoverPanic(handler)
 	addLogging := middleware.NewLogging(s.appConfig.Logger)
 	handler = addLogging(handler)
 	handler = middleware.AddSecureHeaders(handler)

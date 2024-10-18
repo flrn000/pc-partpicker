@@ -2,6 +2,7 @@ package middleware
 
 import (
 	"errors"
+	"fmt"
 	"log/slog"
 	"net/http"
 
@@ -75,4 +76,19 @@ func WithAuthenticate(jwtSecret string, userStore *data.UserStore) func(next htt
 			},
 		)
 	}
+}
+
+func RecoverPanic(next http.Handler) http.Handler {
+	return http.HandlerFunc(
+		func(w http.ResponseWriter, r *http.Request) {
+			// This will always be run in case a panic occurs as go unwinds the stack
+			defer func() {
+				if err := recover(); err != nil {
+					// w.Header().Set("Connection", "close")
+					utils.WriteError(w, r, http.StatusInternalServerError, fmt.Errorf("%v", err))
+				}
+			}()
+			next.ServeHTTP(w, r)
+		},
+	)
 }
